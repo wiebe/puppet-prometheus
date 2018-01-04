@@ -1,11 +1,10 @@
 # Class prometheus::config
 # Configuration class for prometheus monitoring system
-class prometheus::config(
+class prometheus::config (
   $global_config,
   $rule_files,
   $scrape_configs,
   $remote_read_configs,
-  $purge = true,
   $config_template = $::prometheus::params::config_template,
   $storage_retention = $::prometheus::params::storage_retention,
 ) {
@@ -107,21 +106,22 @@ class prometheus::config(
     }
   }
 
-  file { $prometheus::config_dir:
-    ensure  => 'directory',
-    owner   => $prometheus::user,
-    group   => $prometheus::group,
-    purge   => $purge,
-    recurse => $purge,
+  if versioncmp($prometheus::version, '2.0.0') >= 0 {
+    $cfg_verify_cmd = 'check config'
+  } else {
+    $cfg_verify_cmd = 'check-config'
   }
-  -> file { 'prometheus.yaml':
-    ensure  => present,
-    path    => "${prometheus::config_dir}/prometheus.yaml",
-    owner   => $prometheus::user,
-    group   => $prometheus::group,
-    mode    => $prometheus::config_mode,
-    notify  => Class['::prometheus::service_reload'],
-    content => template($config_template),
+
+  file { 'prometheus.yaml':
+    ensure       => present,
+    path         => "${prometheus::config_dir}/prometheus.yaml",
+    owner        => $prometheus::user,
+    group        => $prometheus::group,
+    mode         => $prometheus::config_mode,
+    notify       => Class['::prometheus::service_reload'],
+    require      => File["${prometheus::config_dir}/${prometheus::alertfile_name}"],
+    content      => template($config_template),
+    validate_cmd => "${prometheus::bin_dir}/promtool ${cfg_verify_cmd} %",
   }
 
 }
