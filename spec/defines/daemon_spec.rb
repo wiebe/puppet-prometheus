@@ -22,7 +22,8 @@ describe 'prometheus::daemon' do
           notify_service:    'Service[smurf_exporter]',
           user:              'smurf_user',
           group:             'smurf_group',
-          env_vars:          { SOMEVAR: 42 }
+          env_vars:          { SOMEVAR: 42 },
+          bin_dir:           '/usr/local/bin'
         }
       ].each do |parameters|
         context "with parameters #{parameters}" do
@@ -30,6 +31,7 @@ describe 'prometheus::daemon' do
             parameters
           end
 
+          it { is_expected.to contain_class('prometheus::params') }
           prom_os = facts[:kernel].downcase
           prom_arch = facts[:architecture] == 'i386' ? '386' : 'amd64'
 
@@ -102,7 +104,7 @@ describe 'prometheus::daemon' do
                 %r{daemon --user=smurf_user \\\n            --pidfile="\$PID_FILE" \\\n            "\$DAEMON" '' >> "\$LOG_FILE" &}
               )
             }
-          elsif ['centos-7-x86_64', 'debian-8-x86_64', 'redhat-7-x86_64', 'ubuntu-16.04-x86_64'].include?(os)
+          elsif ['centos-7-x86_64', 'debian-8-x86_64', 'redhat-7-x86_64', 'ubuntu-16.04-x86_64', 'archlinux-4-x86_64'].include?(os)
             # init_style = 'systemd'
 
             it { is_expected.to contain_class('systemd') }
@@ -142,7 +144,7 @@ describe 'prometheus::daemon' do
             }
           else
             it {
-              is_expected.to raise_error(Puppet::Error, %r{I don.t know how to create an init script for style})
+              is_expected.to raise_error(Puppet::Error, %r{I don't know how to create an init script for style})
             }
           end
 

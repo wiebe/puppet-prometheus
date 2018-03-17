@@ -20,7 +20,6 @@ class prometheus::params {
   $alertmanager_user = 'alertmanager'
   $alertmanager_version = '0.5.1'
   $alerts = {}
-  $bin_dir = '/usr/local/bin'
   $config_dir = '/etc/prometheus'
   $config_mode = '0660'
   $config_template = 'prometheus/prometheus.yaml.erb'
@@ -205,7 +204,6 @@ class prometheus::params {
   $redis_exporter_user = 'redis-exporter'
   $redis_exporter_version = '0.11.2'
   $user = 'prometheus'
-  $version = '1.5.2'
   case $::architecture {
     'x86_64', 'amd64': { $arch = 'amd64' }
     'i386':            { $arch = '386'   }
@@ -217,6 +215,9 @@ class prometheus::params {
   $os = downcase($::kernel)
 
   if $::operatingsystem == 'Ubuntu' {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/default'
     if versioncmp($::operatingsystemrelease, '8.04') < 1 {
       $init_style = 'debian'
@@ -226,6 +227,9 @@ class prometheus::params {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem =~ /Scientific|CentOS|RedHat|OracleLinux/ {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/sysconfig'
     if versioncmp($::operatingsystemrelease, '7.0') < 0 {
       $init_style = 'sysv'
@@ -233,6 +237,9 @@ class prometheus::params {
       $init_style  = 'systemd'
     }
   } elsif $::operatingsystem == 'Fedora' {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/sysconfig'
     if versioncmp($::operatingsystemrelease, '12') < 0 {
       $init_style = 'sysv'
@@ -240,6 +247,9 @@ class prometheus::params {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem == 'Debian' {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/default'
     if versioncmp($::operatingsystemrelease, '8.0') < 0 {
       $init_style = 'debian'
@@ -247,12 +257,21 @@ class prometheus::params {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem == 'Archlinux' {
+    $version = '2.2.0'
+    $bin_dir = '/usr/bin'
+    $prometheus_install_method = 'package'
     $env_file_path = '/etc/default'
     $init_style = 'systemd'
   } elsif $::operatingsystem == 'OpenSuSE' {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/sysconfig'
     $init_style = 'systemd'
   } elsif $::operatingsystem =~ /SLE[SD]/ {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/sysconfig'
     if versioncmp($::operatingsystemrelease, '12.0') < 0 {
       $init_style = 'sles'
@@ -260,12 +279,21 @@ class prometheus::params {
       $init_style = 'systemd'
     }
   } elsif $::operatingsystem == 'Darwin' {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = undef
     $init_style = 'launchd'
   } elsif $::operatingsystem == 'Amazon' {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $env_file_path = '/etc/sysconfig'
     $init_style = 'sysv'
   } else {
+    $version = '1.5.2'
+    $bin_dir = '/usr/local/bin'
+    $prometheus_install_method = 'url'
     $init_style = undef
   }
   if $init_style == undef {
