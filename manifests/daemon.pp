@@ -85,6 +85,10 @@ define prometheus::daemon (
   Hash[String, Scalar] $env_vars       = {},
   Optional[String] $env_file_path      = $prometheus::env_file_path,
   Optional[String[1]] $extract_command = $prometheus::extract_command,
+  Boolean $export_scrape_job           = false,
+  Stdlib::Host $scrape_host            = $facts['fqdn'],
+  Optional[Stdlib::Port] $scrape_port  = undef,
+  String[1] $scrape_job_name           = $name,
 ) {
 
   case $install_method {
@@ -253,6 +257,18 @@ define prometheus::daemon (
       name     => $init_selector,
       enable   => $service_enable,
       provider => $real_provider,
+    }
+  }
+
+  if $export_scrape_job {
+    if $scrape_port == undef {
+      fail('must set $scrape_port on exported daemon')
+    }
+
+    @@prometheus::scrape_job { "${scrape_host}:${scrape_port}":
+      job_name => $scrape_job_name,
+      targets  => ["${scrape_host}:${scrape_port}"],
+      labels   => { 'alias' => $scrape_host },
     }
   }
 }
