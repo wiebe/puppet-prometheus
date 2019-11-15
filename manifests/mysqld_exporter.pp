@@ -1,31 +1,26 @@
-# Class: prometheus::mysqld_exporter
+# @summary manages prometheus mysqld_exporter
 #
-# This module manages prometheus mysqld_exporter
+# @see https://github.com/prometheus/mysqld_exporter
 #
-# Parameters:
+# @param cnf_config_path
+#  The path to put the my.cnf file
+# @param cnf_host
+#  The mysql host.
+# @param cnf_password
+#  The mysql user password.
+# @param cnf_port
+#  The port for which the mysql host is running.
+# @param cnf_socket
+#  The socket which the mysql host is running. If defined, host and port are not used.
+# @param cnf_user
+#  The mysql user to use when connecting.
+#
+# Other parameters: (TODO: Convert to puppet strings)
 #  [*arch*]
 #  Architecture (amd64 or i386)
 #
 #  [*bin_dir*]
 #  Directory where binaries are located
-#
-#  [*cnf_config_path*]
-#  The path to put the my.cnf file
-#
-#  [*cnf_host*]
-#  The mysql host. Defaults to 'localhost'
-#
-#  [*cnf_password*]
-#  The mysql user password. Defaults to 'password'
-#
-#  [*cnf_port*]
-#  The port for which the mysql host is running. Defaults to 3306
-#
-#  [*cnf_socket*]
-#  The socket which the mysql host is running. If defined, host and port are not used.
-#
-#  [*cnf_user*]
-#  The mysql user to use when connecting. Defaults to 'login'
 #
 #  [*config_mode*]
 #  The permissions of the configuration files
@@ -91,11 +86,6 @@
 #  The binary release version
 
 class prometheus::mysqld_exporter (
-  Stdlib::Absolutepath $cnf_config_path,
-  String $cnf_host,
-  String $cnf_password,
-  Stdlib::Port $cnf_port,
-  String $cnf_user,
   String $download_extension,
   Prometheus::Uri $download_url_base,
   Array $extra_groups,
@@ -104,6 +94,14 @@ class prometheus::mysqld_exporter (
   String $package_name,
   String $user,
   String $version,
+
+  Stdlib::Absolutepath              $cnf_config_path = '/etc/.my.cnf',
+  Stdlib::Host                      $cnf_host        = localhost,
+  Stdlib::Port                      $cnf_port        = 3306,
+  String[1]                         $cnf_user        = login,
+  Variant[Sensitive[String],String] $cnf_password    = 'password',
+  Optional[Stdlib::Absolutepath]    $cnf_socket      = undef,
+
   Boolean $purge_config_dir                  = true,
   Boolean $restart_on_change                 = true,
   Boolean $service_enable                    = true,
@@ -117,7 +115,6 @@ class prometheus::mysqld_exporter (
   String $extra_options                      = '',
   Optional[Prometheus::Uri] $download_url    = undef,
   String $config_mode                        = $prometheus::config_mode,
-  Optional[Stdlib::Absolutepath] $cnf_socket = undef,
   String $arch                               = $prometheus::real_arch,
   Stdlib::Absolutepath $bin_dir              = $prometheus::bin_dir,
   Boolean $export_scrape_job                 = false,
@@ -126,18 +123,29 @@ class prometheus::mysqld_exporter (
 ) inherits prometheus {
 
   #Please provide the download_url for versions < 0.9.0
-  $real_download_url    = pick($download_url,"${download_url_base}/download/v${version}/${package_name}-${version}.${os}-${arch}.${download_extension}")
+  $real_download_url = pick($download_url,"${download_url_base}/download/v${version}/${package_name}-${version}.${os}-${arch}.${download_extension}")
   $notify_service = $restart_on_change ? {
     true    => Service['mysqld_exporter'],
     default => undef,
   }
 
   file { $cnf_config_path:
-    ensure  => 'file',
+    ensure  => file,
     mode    => $config_mode,
     owner   => $user,
     group   => $group,
-    content => template('prometheus/my.cnf.erb'),
+    content => Sensitive(
+      epp(
+        'prometheus/my.cnf.epp',
+        {
+          'cnf_user'     => $cnf_user,
+          'cnf_password' => $cnf_password,
+          'cnf_port'     => $cnf_port,
+          'cnf_host'     => $cnf_host,
+          'cnf_socket'   => $cnf_socket,
+        },
+      )
+    ),
     notify  => $notify_service,
   }
 
