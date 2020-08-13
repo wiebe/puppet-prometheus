@@ -49,7 +49,7 @@
 #  The file path to the omReport executable (default "/opt/dell/srvadmin/bin/omreport")
 class prometheus::dellhw_exporter (
   String[1] $download_extension           = 'tar.gz',
-  String[1] $download_url_base            = 'https://github.com/galexrt/dellhw-exporter/releases',
+  String[1] $download_url_base            = 'https://github.com/galexrt/dellhw_exporter/releases',
   Array[String] $extra_groups             = [],
   String[1] $group                        = 'dellhw-exporter',
   String[1] $package_ensure               = 'present',
@@ -86,7 +86,7 @@ class prometheus::dellhw_exporter (
   }
 
   $real_omreport_path = "--collectors-omreport=${omreport_path}"
-  $real_scrape_port = "--web-listen-address=${scrape_port}"
+  $real_scrape_port = "--web-listen-address=:${scrape_port}"
   $options = join([$extra_options, $real_omreport_path, $real_scrape_port], ' ')
 
   prometheus::daemon { $service_name:
