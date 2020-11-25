@@ -87,24 +87,30 @@ class prometheus::beanstalkd_exporter (
   String[1] $scrape_job_name              = 'beanstalkd',
   Optional[Hash] $scrape_job_labels       = undef,
 ) inherits prometheus {
-  #Please provide the download_url for versions < 0.9.0
-  $real_download_url = pick($download_url,"${download_url_base}/download/${version}/${package_name}-${version}.${os}-${arch}.${download_extension}")
+  # Download url differs between 1.0.0 and 1.0.1 onwards
+  if( versioncmp($version, '1.0.0') < 1 ) {
+    $real_download_url = pick($download_url,"${download_url_base}/download/${version}/${package_name}-${version}.${os}-${arch}.${download_extension}")
+    $options = "-listen-address ${exporter_listen} -config ${config} -mapping-config ${mapping_config} ${extra_options}"
+    $real_file_ensure = 'file'
+  } else {
+    $real_download_url = pick($download_url,"${download_url_base}/download/${version}/${package_name}-${version}.${os}-${arch}")
+    $options = "-web.listen-address ${exporter_listen} -beanstalkd.address ${beanstalkd_address} ${extra_options}"
+    $real_file_ensure = 'absent'
+  }
 
   $notify_service = $restart_on_change ? {
     true    => Service[$service_name],
     default => undef,
   }
 
-  $options = "-listen-address ${exporter_listen} -config ${config} -mapping-config ${mapping_config} ${extra_options}"
-
   file { $config:
-    ensure  => file,
+    ensure  => $real_file_ensure,
     content => $beanstalkd_address,
     before  => Prometheus::Daemon['beanstalkd_exporter'],
   }
 
   file { $mapping_config:
-    ensure => file,
+    ensure => $real_file_ensure,
     before => Prometheus::Daemon['beanstalkd_exporter'],
   }
 
