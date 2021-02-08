@@ -34,7 +34,7 @@ describe 'prometheus::node_exporter' do
         end
       end
 
-      context 'without collector parameters' do
+      context 'with collector parameters' do
         let(:params) do
           {
             collectors_enable: %w[foo bar],
@@ -55,7 +55,7 @@ describe 'prometheus::node_exporter' do
         end
       end
 
-      context 'without collector parameters and extra options' do
+      context 'with collector parameters and extra options' do
         let(:params) do
           {
             collectors_enable: %w[foo bar],
