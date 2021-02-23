@@ -214,7 +214,7 @@ define prometheus::daemon (
     'none': {}
   }
 
-  if $init_style == 'none' and $install_method == 'package' {
+  if $init_style == 'none' and $install_method == 'package' and !$options.empty {
     $env_vars_merged = $env_vars + {
       'ARGS' => $options,
     }
@@ -222,7 +222,11 @@ define prometheus::daemon (
     $env_vars_merged = $env_vars
   }
 
-  unless $env_vars_merged.empty {
+  if $env_vars_merged.empty {
+    file { "${env_file_path}/${name}":
+      ensure => absent,
+    }
+  } else {
     file { "${env_file_path}/${name}":
       mode    => '0644',
       owner   => 'root',
