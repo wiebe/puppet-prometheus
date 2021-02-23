@@ -214,7 +214,15 @@ define prometheus::daemon (
     'none': {}
   }
 
-  unless $env_vars.empty {
+  if $init_style == 'none' and $install_method == 'package' {
+    $env_vars_merged = $env_vars + {
+      'ARGS' => $options,
+    }
+  } else {
+    $env_vars_merged = $env_vars
+  }
+
+  unless $env_vars_merged.empty {
     file { "${env_file_path}/${name}":
       mode    => '0644',
       owner   => 'root',
@@ -222,7 +230,7 @@ define prometheus::daemon (
       content => epp(
         'prometheus/daemon.env.epp',
         {
-          'env_vars' => $env_vars,
+          'env_vars' => $env_vars_merged,
         }
       ),
       notify  => $notify_service,
