@@ -219,7 +219,12 @@ define prometheus::daemon (
       mode    => '0644',
       owner   => 'root',
       group   => '0', # Darwin uses wheel
-      content => template('prometheus/daemon.env.erb'),
+      content => epp(
+        'prometheus/daemon.env.epp',
+        {
+          'env_vars' => $env_vars,
+        }
+      ),
       notify  => $notify_service,
     }
   }
