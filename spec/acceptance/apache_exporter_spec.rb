@@ -16,7 +16,7 @@ describe 'prometheus apache exporter' do
       it { is_expected.to be_listening.with('tcp6') }
     end
     describe process('apache_exporter') do
-      its(:args) { is_expected.to match %r{\ --scrape_uri http://localhost/server-status\?auto} }
+      its(:args) { is_expected.to match %r{\ --scrape_uri http://localhost/server-status/\?auto} }
     end
   end
 
@@ -33,7 +33,7 @@ describe 'prometheus apache exporter' do
     end
 
     describe process('apache_exporter') do
-      its(:args) { is_expected.to match %r{\ -scrape_uri http://localhost/server-status\?auto} }
+      its(:args) { is_expected.to match %r{\ -scrape_uri http://localhost/server-status/\?auto} }
     end
 
     describe port(9117) do
@@ -51,7 +51,7 @@ describe 'prometheus apache exporter' do
     end
 
     describe process('apache_exporter') do
-      its(:args) { is_expected.to match %r{\ -scrape_uri http://localhost/server-status\?auto} }
+      its(:args) { is_expected.to match %r{\ -scrape_uri http://localhost/server-status/\?auto} }
     end
 
     describe port(9117) do
