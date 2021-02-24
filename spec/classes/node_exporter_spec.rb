@@ -28,9 +28,9 @@ describe 'prometheus::node_exporter' do
         end
 
         if facts[:os]['family'] == 'RedHat'
-          it { is_expected.not_to contain_file('/etc/sysconfig/bird_exporter') }
+          it { is_expected.not_to contain_file('/etc/sysconfig/node_exporter') }
         else
-          it { is_expected.not_to contain_file('/etc/default/bird_exporter') }
+          it { is_expected.not_to contain_file('/etc/default/node_exporter') }
         end
       end
 
