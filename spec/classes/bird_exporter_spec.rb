@@ -23,10 +23,6 @@ describe 'prometheus::bird_exporter' do
 
         if facts[:os]['family'] == 'RedHat'
           it { is_expected.not_to contain_file('/etc/sysconfig/bird_exporter') }
-        elsif facts[:os]['family'] == 'Archlinux'
-          # by default the ARGS array gets passed through here
-          it { is_expected.to contain_file('/etc/default/bird_exporter') }
-          it { is_expected.not_to contain_file('/etc/sysconfig/bird_exporter') }
         else
           it { is_expected.not_to contain_file('/etc/default/bird_exporter') }
         end
