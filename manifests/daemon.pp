@@ -214,7 +214,7 @@ define prometheus::daemon (
     'none': {}
   }
 
-  if $init_style == 'none' and $install_method == 'package' and !empty($options) {
+  if $init_style == 'none' and $install_method == 'package' {
     $env_vars_merged = $env_vars + {
       'ARGS' => $options,
     }
@@ -222,11 +222,21 @@ define prometheus::daemon (
     $env_vars_merged = $env_vars
   }
 
-  if empty($env_vars_merged) {
+  if $install_method == 'package' and $package_ensure in ['absent', 'purged'] {
+    # purge the environment file if the package is removed
+    #
+    # this is to make sure we can garbage-collect the files created by
+    # this module, when purging it.
     file { "${env_file_path}/${name}":
       ensure => absent,
     }
-  } else {
+  } elsif $install_method == 'package' or !$env_vars_merged.empty {
+    # manage the environment file if the package is installed *or*, in
+    # any other case, if there's something to add to it
+    #
+    # the logic here is that the package-managed .service files *need*
+    # those files to be present, even if empty, so it's critical that
+    # the file not get removed
     file { "${env_file_path}/${name}":
       mode    => '0644',
       owner   => 'root',
