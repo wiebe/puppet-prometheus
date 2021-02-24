@@ -29,8 +29,12 @@ describe 'prometheus::node_exporter' do
 
         if facts[:os]['family'] == 'RedHat'
           it { is_expected.not_to contain_file('/etc/sysconfig/node_exporter') }
+        elsif facts[:os]['name'] == 'Archlinux'
+          it { is_expected.to contain_file('/etc/default/node_exporter') }
+          it { is_expected.not_to contain_file('/etc/sysconfig/node_exporter') }
         else
           it { is_expected.not_to contain_file('/etc/default/node_exporter') }
+          it { is_expected.not_to contain_file('/etc/sysconfig/node_exporter') }
         end
       end
 
