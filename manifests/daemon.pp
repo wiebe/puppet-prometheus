@@ -214,7 +214,7 @@ define prometheus::daemon (
     'none': {}
   }
 
-  if $init_style == 'none' and $install_method == 'package' and !$options.empty {
+  if $init_style == 'none' and $install_method == 'package' and !empty($options) {
     $env_vars_merged = $env_vars + {
       'ARGS' => $options,
     }
@@ -222,7 +222,7 @@ define prometheus::daemon (
     $env_vars_merged = $env_vars
   }
 
-  if $env_vars_merged.empty {
+  if empty($env_vars_merged) {
     file { "${env_file_path}/${name}":
       ensure => absent,
     }
