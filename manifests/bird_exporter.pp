@@ -62,7 +62,7 @@ class prometheus::bird_exporter (
   String[1] $package_ensure               = 'installed',
   String[1] $package_name                 = 'bird_exporter',
   String[1] $user                         = 'bird-exporter',
-  String[1] $version                      = '1.2.4',
+  String[1] $version                      = '1.2.5',
   Boolean $purge_config_dir               = true,
   Boolean $restart_on_change              = true,
   Boolean $service_enable                 = true,
