@@ -89,9 +89,9 @@ class prometheus::apache_exporter (
   }
 
   if versioncmp($version, '0.8.0') < 0 {
-    $options = "-scrape_uri \"${scrape_uri}\" ${extra_options}"
+    $options = "-scrape_uri '${scrape_uri}' ${extra_options}"
   } else {
-    $options = "--scrape_uri \"${scrape_uri}\" ${extra_options}"
+    $options = "--scrape_uri '${scrape_uri}' ${extra_options}"
   }
 
   prometheus::daemon { $service_name:

@@ -43,7 +43,7 @@ describe 'prometheus::apache_exporter' do
           it { is_expected.to contain_class('prometheus') }
           it { is_expected.to contain_group('apache-exporter') }
           it { is_expected.to contain_user('apache-exporter') }
-          it { is_expected.to contain_prometheus__daemon('apache_exporter').with('options' => '-scrape_uri "http://localhost/server-status/?auto" ') }
+          it { is_expected.to contain_prometheus__daemon('apache_exporter').with('options' => "-scrape_uri 'http://localhost/server-status/?auto' ") }
           it { is_expected.to contain_service('apache_exporter') }
         end
         describe 'install correct binary' do
@@ -71,7 +71,7 @@ describe 'prometheus::apache_exporter' do
           it { is_expected.to contain_class('prometheus') }
           it { is_expected.to contain_group('apache-exporter') }
           it { is_expected.to contain_user('apache-exporter') }
-          it { is_expected.to contain_prometheus__daemon('apache_exporter').with('options' => '-scrape_uri "http://127.0.0.1/server-status/?auto" -test') }
+          it { is_expected.to contain_prometheus__daemon('apache_exporter').with('options' => "-scrape_uri 'http://127.0.0.1/server-status/?auto' -test") }
           it { is_expected.to contain_service('apache_exporter') }
         end
         describe 'install correct binary' do
@@ -93,7 +93,7 @@ describe 'prometheus::apache_exporter' do
         end
 
         describe 'uses argument prefix correctly' do
-          it { is_expected.to contain_prometheus__daemon('apache_exporter').with('options' => '--scrape_uri "http://127.0.0.1/server-status/?auto" --test') }
+          it { is_expected.to contain_prometheus__daemon('apache_exporter').with('options' => "--scrape_uri 'http://127.0.0.1/server-status/?auto' --test") }
         end
       end
     end
